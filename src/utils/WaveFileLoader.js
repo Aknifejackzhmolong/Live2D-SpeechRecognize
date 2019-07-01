@@ -1,6 +1,7 @@
-/* eslint-disable */
-const pako = require('pako')
-
+/**
+ * @Author Aknife
+ * @Date 2019/6/30
+ */
 function WaveFileLoader(buffer) {
     this.header = null;
     this.data = null;
@@ -136,10 +137,9 @@ function exportWAV16k(data/*Float32Array*/){
   file.setInt32(40,deflateDataByteLength,true)
   let s
   for (let i = 0;i < deflateDataLength;i++) {
-    // if (i*3+2<data.length) file.setFloat32(44+i*4,(data[3*i]+data[3*i+1]+data[3*i+2])/3,true)
-    // else if (i*3+1<data.length) file.setFloat32(44+i*4,(data[3*i]+data[3*i+1])/3,true)
-    // else if (i*3<data.length) file.setFloat32(44+i*4,data[3*i]/3,true)
-    // else file.setFloat32(44+i*4,0,true)
+    /*
+    javascript 不支持16bit Float, 所以强制转换为16bit Integer保存
+     */
     if (i*3+1<data.length) s = Math.max(-1, Math.min(1, data[3*i+1]));
     else s = 0
     file.setInt16(44+i*2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
