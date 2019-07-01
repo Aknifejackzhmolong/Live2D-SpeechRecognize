@@ -92,7 +92,7 @@ export default {
                     type: 2,
                     time: util.formatDate.format(new Date(),'yyyy-MM-dd hh:mm:ss'),
                     name: '客户MM',
-                    content: '这里是<a target="_blank" href="https://github.com/taylorchen709/vue-chat">源码</a>13213'
+                    content: '这里是<a target="_blank" href="https://github.com/Aknifejackzhmolong/Live2D-SpeechRecognize">源码</a>'
                 });
 
                 setTimeout(function(){
