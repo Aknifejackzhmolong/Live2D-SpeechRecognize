@@ -13,7 +13,7 @@
 - [x] recorder-js录音
 - [x] 录音文件转换成16kHz单声道(src/utils/WaveFileLoader.js中, 仅供学习, 此工具没有工业级性能)
 - [x] 语音识别(我用的是github上开源的某个工具, 就不说明了, 用百度啊阿里啊的语音识别都很好用)
-- [x] live2D
+- [x] live2D(static/live2d.min.js不提供)
 - [x] ...
 
 ## Build Setup
