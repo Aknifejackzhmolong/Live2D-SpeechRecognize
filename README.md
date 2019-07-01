@@ -1,6 +1,13 @@
 # speaker
 
-> A CMCC Speaker project
+> A Vue.js project
+
+代码仅供参考, 毕竟此为代码删减过后的版本, 还没调试
+哪天有心情了再好好整理一下
+
+## Screenshots
+
+<img src="https://github.com/Aknifejackzhmolong/Live2D-SpeechRecognize/blob/master/screenshots/display.png?raw=true" width="900px" style="max-width: 100%;"/>
 
 ## Build Setup
 
@@ -19,3 +26,8 @@ npm run build --report
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+## License
+[MIT](http://opensource.org/licenses/MIT)
+
+Copyrights © 2019 Aknife. All Rights Reserved.
