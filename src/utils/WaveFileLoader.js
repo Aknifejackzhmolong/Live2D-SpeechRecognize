@@ -10,25 +10,24 @@ function WaveFileLoader(buffer) {
 Object.assign( WaveFileLoader.prototype , {
     constructor: WaveFileLoader,
     load: function (buffer) {
-        // MAT文件由一个128字节的文件头和若干个数据单元组成
-        // 文件头header里有124字节的文本描述区域和4个字节的flag。flag中的前2个字节说明version，后两个字节是endian indicator的I和M。
+        // WAV文件由一个44字节的文件头和音频数据单元组成
         let headerBuffer = buffer.slice(0,44)
+        let headerDataView = new DataView(headerBuffer)
         console.log(buffer)
         let riff = this.parseString(headerBuffer.slice(0,4))
-        let fileSize = new Int32Array(headerBuffer.slice(4,8))[0]
+        let fileSize = headerDataView.getInt32(4, true)
         let type  = this.parseString(headerBuffer.slice(8,12))
         let dataInfoMark = this.parseString(headerBuffer.slice(12,16))
-        // console.log(new Uint8Array(headerBuffer.slice(12,16)))
-        let dataInfoSize = new Int32Array(headerBuffer.slice(16,20))[0]
-        let encodeType = new Int16Array(headerBuffer.slice(20,22))[0]
-        let channelCount = new Int16Array(headerBuffer.slice(22,24))[0]
-        let sampleRate = new Int32Array(headerBuffer.slice(24,28))[0]
-        let tuplefrequency = new Int32Array(headerBuffer.slice(28,32))[0]
-        let tupleSize = new Int16Array(headerBuffer.slice(32,34))[0]
-        let bitsPerSample = new Int16Array(headerBuffer.slice(34,36))[0]
+        let dataInfoSize = headerDataView.getInt32(16, true)
+        let encodeType = headerDataView.getInt16(20, true)
+        let channelCount = headerDataView.getInt16(22, true)
+        let sampleRate = headerDataView.getInt32(24, true)
+        let tuplefrequency = headerDataView.getInt32(28, true)
+        let tupleSize = headerDataView.getInt16(32, true)
+        let bitsPerSample = headerDataView.getInt16(34, true)
         let dataChunkBeginMark = this.parseString(headerBuffer.slice(36,40))
-        let dataChunkSize = new Int32Array(headerBuffer.slice(40,44))[0]
-        let header = {
+        let dataChunkSize = headerDataView.getInt32(40, true)
+        this.header = {
           riff,
           fileSize,
           type,
@@ -43,9 +42,8 @@ Object.assign( WaveFileLoader.prototype , {
           dataChunkBeginMark,
           dataChunkSize
         };
-        this.header = header
-        this.data = new Float32Array(buffer.slice(44))
-        console.log(this.toJSON())
+        console.log(this.toString())
+        this.data = this.extractData(buffer.slice(44))
     },
     exportWAV16k(data/*Float32Array*/){
       const buffer = new ArrayBuffer(44+data.byteLength)
@@ -80,19 +78,19 @@ Object.assign( WaveFileLoader.prototype , {
       for (let i = 0;i < data.length;i++) file.setFloat32(44+i*4,data[i],true)
       return buffer
     },
-    toJSON: function () {
-      return '(1 - 4)块标识符:'+this.header.riff+'(以下说明文件基本信息)\n'+
-        '(5 - 8)文件大小:'+this.header.fileSize+'byte(音频数据块大小+36)\n'+
+    toString: function () {
+      return '(1 - 4)块标识符:'+this.header.riff+'\t\t\t\t\t\t[以下说明文件基本信息]\n'+
+        '(5 - 8)文件大小:'+this.header.fileSize+'byte\t\t\t\t[音频数据块大小+36]\n'+
         '(9 -12)文件格式:'+this.header.type+'\n'+
-        '(13-16)音频数据信息标识:'+this.header.dataInfoMark+'(以下说明音频数据基本信息)\n'+
+        '(13-16)音频数据信息标识:'+this.header.dataInfoMark+'\t\t\t\t[以下说明音频数据基本信息]\n'+
         '(17-20)音频数据信息区大小:'+this.header.dataInfoSize+'byte\n'+
-        '(21-22)音频数据编码方式:'+this.header.encodeType+'(1为PCM)\n'+
+        '(21-22)音频数据编码方式:'+this.header.encodeType+'\t\t\t\t[1为PCM]\n'+
         '(23-24)声道数量(numChannels):'+this.header.channelCount+'\n'+
         '(25-28)采样频率(Sample Rate):'+this.header.sampleRate+'Hz\n'+
-        '(29-32)位元(组)率(Bit rate):'+this.header.tuplefrequency+'((Sample Rate * BitsPerSample * numChannels) / 8)\n'+
-        '(33-34)位元大小:'+this.header.tupleSize+'\n'+
+        '(29-32)位元率/比特率(Bit rate):'+this.header.tuplefrequency+'bps\t[(Sample Rate * BitsPerSample * numChannels) / 8]\n'+
+        '(33-34)位元大小:'+this.header.tupleSize+'byte\t\t\t\t\t[(BitsPerSample * numChannels) / 8]\n'+
         '(35-36)单个个采样数据的大小(BitsPerSample):'+this.header.bitsPerSample+'bit\n'+
-        '(37-40)音频数据起始标识:'+this.header.dataChunkBeginMark+'(以下为音频数据)\n'+
+        '(37-40)音频数据起始标识:'+this.header.dataChunkBeginMark+'\t\t\t\t[以下为音频数据]\n'+
         '(41-44)音频数据大小:'+this.header.dataChunkSize+'byte\n'+
         `(45-${this.header.dataChunkSize+44})数据区...`
     },
@@ -101,6 +99,25 @@ Object.assign( WaveFileLoader.prototype , {
       buffer = new Uint8Array(buffer);
       for (let i = 0; i < buffer.length; i++) str += String.fromCharCode(buffer[i])
       return str.replace(/\0/g,'')
+    },
+    extractData: function (data/*ArrayBuffer*/, BitsPerSample/*int*/, numChannels/*int*/, tupleSize/*int*/) {
+      if (BitsPerSample === undefined) BitsPerSample = this.header.bitsPerSample
+      if (BitsPerSample !== 16) throw 'support 16bitFloat only, the BitsPerSample is '+BitsPerSample;
+      if (numChannels === undefined) numChannels = this.header.channelCount
+      if (tupleSize === undefined) tupleSize = BitsPerSample * numChannels / 8
+      const dataView = new DataView(data)
+      let buffer = []
+      let offset = 0
+      for (let i = 0; i < numChannels; i++){
+        buffer.push(new Float32Array(new ArrayBuffer(dataView.byteLength / numChannels * 2)))
+      }
+      while(offset < dataView.byteLength){
+        for (let i = 0; i < numChannels; i++){
+          buffer[i][offset/tupleSize] = dataView.getInt16(offset+i*2, true) < 0 ? dataView.getInt16(offset+i*2, true) / 0x8000 : dataView.getInt16(offset+i*2, true) / 0x7FFF
+        }
+        offset += tupleSize
+      }
+      return buffer
     }
 } );
 
