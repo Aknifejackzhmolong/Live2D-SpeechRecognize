@@ -8,7 +8,7 @@
 
 ## Screenshots
 
-<div style="text-align:center"><img src="https://github.com/Aknifejackzhmolong/Live2D-SpeechRecognize/blob/master/screenshots/display.png?raw=true" sty width="600px" style="max-width: 100%;display:block;margin:0 auto;"/></div>
+![](https://github.com/Aknifejackzhmolong/Live2D-SpeechRecognize/blob/master/screenshots/display.png?raw=true")
 
 ## 功能
 - [x] recorder-js录音
