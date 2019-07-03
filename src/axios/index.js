@@ -1,7 +1,7 @@
 /* eslint-disable */
 import axios from 'axios'
 
-axios.defaults.baseURL = '' /* your back-stage API URL */
+axios.defaults.baseURL = 'localhost:8001' /* your back-stage API URL */
 axios.defaults.withCredentials = true
 axios.interceptors.request.use(config => {
   if (config.data instanceof Object) config.headers['content-type'] = 'application/json;charset=UTF-8'

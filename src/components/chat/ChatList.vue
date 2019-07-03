@@ -110,8 +110,8 @@ export default {
         },
         stopVoice(){
           console.log('touchend')
-          // this.recorder.stop()
           recorder.stop()
+            // buffer is an AudioBuffer(Float32Array ArrayBuffer)
             .then(({blob, buffer}) => {
               let param = new FormData()
               /**
@@ -120,16 +120,28 @@ export default {
               param.append('file',new Blob([exportWAV16k(buffer[0])]), 'test.wav')
               this.isRecording = false
 
-              this.$axios.post('/speech',param, {timeout: 1000 * 60 * 2}).then(({data})=>{
-                this.records.push({
-                  type: 1,
+              return this.$axios.post('/speech',param, {timeout: 1000 * 60 * 2})
+            }).then(({data})=>{
+            this.records.push({
+              type: 1,
+              time: util.formatDate.format(new Date(),'yyyy-MM-dd hh:mm:ss'),
+              name: '游客',
+              content: data === '' ? '[empty]' : data.join(',')
+            })
+            return this.$axios.get('/talk?content='+encodeURIComponent(data.join(',')))
+          }).then(({data:{results}})=>{
+            const records = this.records
+            results.forEach(group=>{
+              if (['text'].indexOf(group.resultType) > -1){
+                records.push({
+                  type: 2,
                   time: util.formatDate.format(new Date(),'yyyy-MM-dd hh:mm:ss'),
-                  name: '游客',
-                  content: data === '' ? '[empty]' : data
+                  name: '客户MM',
+                  content: group.values.text === '' ? '[empty]' : group.values.text
                 })
-              })
-              // buffer is an AudioBuffer(Float32Array ArrayBuffer)
-            });
+              }
+            })
+          });
         },
         handlecontextmenu(e) {
           e.preventDefault()
