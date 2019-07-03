@@ -2,8 +2,7 @@
 
 > A Vue.js project
 
-    代码仅供参考, 毕竟此为代码删减过后的版本, 还没调试
-    哪天有心情了再好好整理一下
+时不时更新中
 
 ## Screenshots
 
@@ -30,6 +29,11 @@ npm run build
 
 # build for production and view the bundle analyzer report
 npm run build --report
+```
+## Back End
+```bash
+pip install -r requirements.txt
+python speech.py
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
