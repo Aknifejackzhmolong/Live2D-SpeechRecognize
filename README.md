@@ -4,7 +4,7 @@
 
 时不时更新中
 
-[示例](https://ai.aknifezndx.top:8080/#/chat)
+[示例](https://ai.aknifezndx.top/)
 
 ## Screenshots
 
